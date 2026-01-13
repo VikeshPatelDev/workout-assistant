@@ -1,0 +1,101 @@
+{
+    "categories": [
+      {
+        "id": "exercise_tutorials",
+        "label": "Exercise Tutorials",
+        "description": "Step-by-step exercise form and technique guides",
+        "videos": [
+          { "title": "How to perform pushups – step by step tutorial", "url": "https://www.youtube.com/shorts/WIYGc0EAaVk" },
+          { "title": "Deadlift tutorials", "url": "https://www.youtube.com/shorts/QSXuT9QqCB0" },
+          { "title": "Correct leg press form – step by step", "url": "https://www.youtube.com/shorts/6h0O7IN0SaA" },
+          { "title": "How to perform lat pulldown for back growth", "url": "https://www.youtube.com/shorts/XqV4ezbIiKE" },
+          { "title": "How to perform T bar rowing", "url": "https://www.youtube.com/shorts/3-zl28fbyIg" },
+          { "title": "How to perform barbell shoulder press", "url": "https://www.youtube.com/shorts/Ehx8ATZXSOs" },
+          { "title": "How to perform incline dumbbell press – mistakes to avoid", "url": "https://www.youtube.com/shorts/nxaAdX2aACg" },
+          { "title": "Hammer curls tutorial – 3 things to remember", "url": "https://www.youtube.com/shorts/573dDNTL_D8" },
+          { "title": "Shrugs correct tutorial", "url": "https://www.youtube.com/shorts/ZKcpZoxlliY" }
+        ]
+      },
+  
+      {
+        "id": "muscle_activation_tips",
+        "label": "Muscle Activation Tips",
+        "description": "Mind–muscle connection and activation techniques",
+        "videos": [
+          { "title": "Tips for better bicep activation", "url": "https://www.youtube.com/shorts/F5mSoK4Sfw4" },
+          { "title": "Tips for better chest activation", "url": "https://www.youtube.com/shorts/uIDLngZRVYE" },
+          { "title": "Tips for better back activation", "url": "https://www.youtube.com/shorts/ECv5dvy2X6Y" },
+          { "title": "Tips for better shoulder activation", "url": "https://www.youtube.com/shorts/70oRM5TgCGU" },
+          { "title": "Tips for better tricep activation", "url": "https://www.youtube.com/shorts/X14tJ6tnyNg" },
+          { "title": "Tips for better leg activation", "url": "https://www.youtube.com/shorts/7Pv0ISqF7zc" },
+          { "title": "Tips for better abs activation", "url": "https://www.youtube.com/shorts/YO0oiVUwC2A" }
+        ]
+      },
+  
+      {
+        "id": "full_workouts_routines",
+        "label": "Full Workouts & Routines",
+        "description": "Complete workout sessions and routines",
+        "videos": [
+          { "title": "Full chest workout", "url": "https://www.youtube.com/shorts/idt3ds2fTL4" },
+          { "title": "Trial and tested full back workout", "url": "https://www.youtube.com/shorts/9Xi5GPk60Ro" },
+          { "title": "Full leg workout – step by step tutorial", "url": "https://www.youtube.com/shorts/CSCMSn78Feo" },
+          { "title": "Best arms day routine", "url": "https://www.youtube.com/shorts/Pjr0vfdtMxM" },
+          { "title": "Best arms workout under 40 minutes", "url": "https://www.youtube.com/shorts/_Ygu7ZvCsAk" },
+          { "title": "Best abs workout that I personally do", "url": "https://www.youtube.com/shorts/oulrKtZb8Qw" },
+          { "title": "HIIT home workout", "url": "https://www.youtube.com/shorts/KaWtALDwvV0" }
+        ]
+      },
+  
+      {
+        "id": "exercise_comparisons",
+        "label": "Exercise Comparisons",
+        "description": "Choosing the right exercise or variation",
+        "videos": [
+          { "title": "Rod or dumbbell for bicep growth?", "url": "https://www.youtube.com/shorts/tcp5oHa2wzM" },
+          { "title": "Arnold press vs shoulder press", "url": "https://www.youtube.com/shorts/e_CHv78f-Lo" },
+          { "title": "Which grip for upper back vs lower lats?", "url": "https://www.youtube.com/shorts/2r2-ngRX0CU" },
+          { "title": "What do you think – which one is better?", "url": "https://www.youtube.com/shorts/3yaS-Toemss" }
+        ]
+      },
+  
+      {
+        "id": "mistakes_injury_prevention",
+        "label": "Mistakes & Injury Prevention",
+        "description": "Common mistakes, warnings, and injury prevention",
+        "videos": [
+          { "title": "Don't do this type of bicep curls", "url": "https://www.youtube.com/shorts/FrTZYOoqOkE" },
+          { "title": "Don't train your shoulder like this", "url": "https://www.youtube.com/shorts/0OI5BNwFhoM" },
+          { "title": "Don't perform tricep kickbacks like this", "url": "https://www.youtube.com/shorts/82_h5081_JY" },
+          { "title": "Don't do this mistake while crossover", "url": "https://www.youtube.com/shorts/6Y5SgeyutUY" },
+          { "title": "Avoid unnecessary wrist stress", "url": "https://www.youtube.com/shorts/3pKJrtzn5CU" }
+        ]
+      },
+  
+      {
+        "id": "muscle_growth_physique",
+        "label": "Muscle Growth / Physique",
+        "description": "Hypertrophy, aesthetics, and physique building",
+        "videos": [
+          { "title": "V taper body unlocked", "url": "https://www.youtube.com/shorts/dKGJxkRTti0" },
+          { "title": "3 best exercises for shoulder growth", "url": "https://www.youtube.com/shorts/dJ0s95mDS8o" },
+          { "title": "Best exercise for lats – single arm pulldown", "url": "https://www.youtube.com/shorts/Id520SaieTM" },
+          { "title": "Best exercise for hamstring growth", "url": "https://www.youtube.com/shorts/6n4NN0lYPWo" },
+          { "title": "What is muscle imbalance and how to fix it", "url": "https://www.youtube.com/shorts/d83dE4WVgqY" }
+        ]
+      },
+  
+      {
+        "id": "supplements_nutrition",
+        "label": "Supplements & Nutrition",
+        "description": "Supplement education and nutrition facts",
+        "videos": [
+          { "title": "Must know creatine facts", "url": "https://www.youtube.com/shorts/RLRkS2Iaz0I" },
+          { "title": "Creatine wasted?", "url": "https://www.youtube.com/shorts/958iaETK2rs" },
+          { "title": "Omega 3 benefits and vegetarian sources", "url": "https://www.youtube.com/shorts/njo90kfQ7Hg" },
+          { "title": "Chilled water facts", "url": "https://www.youtube.com/shorts/4598s89o7Ww" }
+        ]
+      }
+    ]
+  }
+

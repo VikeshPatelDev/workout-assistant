@@ -1,0 +1,131 @@
+{
+    "version": "2.0",
+    "scope": "gym_only_curated",
+    "categories": [
+      {
+        "id": "exercise_tutorials",
+        "label": "Exercise Tutorials",
+        "type": "hierarchical",
+        "subCategories": [
+          {
+            "id": "chest",
+            "label": "Chest",
+            "videos": [
+              { "title": "How to perform pushups – step by step tutorial", "url": "https://www.youtube.com/shorts/WIYGc0EAaVk" },
+              { "title": "How to perform incline dumbbell press – mistakes to avoid", "url": "https://www.youtube.com/shorts/nxaAdX2aACg" },
+              { "title": "Perfect form for high to low crossover for chest", "url": "https://www.youtube.com/shorts/BNMlz4vOg8Y" }
+            ]
+          },
+          {
+            "id": "back",
+            "label": "Back",
+            "videos": [
+              { "title": "How to perform lat pulldown for back growth", "url": "https://www.youtube.com/shorts/XqV4ezbIiKE" },
+              { "title": "How to perform T bar rowing", "url": "https://www.youtube.com/shorts/3-zl28fbyIg" },
+              { "title": "How to perform dumbbell rowing", "url": "https://www.youtube.com/shorts/GwbihLqKrlM" },
+              { "title": "How to perform pullups – step by step tutorial", "url": "https://www.youtube.com/shorts/S2xn4AoHRd8" }
+            ]
+          },
+          {
+            "id": "biceps",
+            "label": "Biceps",
+            "videos": [
+              { "title": "Hammer curls tutorial – 3 things to remember", "url": "https://www.youtube.com/shorts/573dDNTL_D8" },
+              { "title": "How to perform bicep concentration curls", "url": "https://www.youtube.com/shorts/krF5IS7Ndsc" }
+            ]
+          },
+          {
+            "id": "triceps",
+            "label": "Triceps",
+            "videos": [
+              { "title": "How to perform overhead tricep extension", "url": "https://www.youtube.com/shorts/valqMyoiNao" },
+              { "title": "How to perform tricep dips machine", "url": "https://www.youtube.com/shorts/zzkYRgl8Q7A" }
+            ]
+          },
+          {
+            "id": "shoulders",
+            "label": "Shoulders",
+            "videos": [
+              { "title": "How to perform barbell shoulder press", "url": "https://www.youtube.com/shorts/Ehx8ATZXSOs" },
+              { "title": "How to perform rear delt fly", "url": "https://www.youtube.com/shorts/uLrf3FU-ZPU" },
+              { "title": "Shrugs correct tutorial", "url": "https://www.youtube.com/shorts/ZKcpZoxlliY" }
+            ]
+          },
+          {
+            "id": "legs",
+            "label": "Legs",
+            "videos": [
+              { "title": "Correct leg press form – step by step", "url": "https://www.youtube.com/shorts/6h0O7IN0SaA" },
+              { "title": "How to perform smith machine squats", "url": "https://www.youtube.com/shorts/qVUPxAO2rhE" }
+            ]
+          },
+          {
+            "id": "abs",
+            "label": "Abs & Core",
+            "videos": [
+              { "title": "Correct exercises for obliques", "url": "https://www.youtube.com/shorts/V0EcCE4JGTE" },
+              { "title": "Home workout for abs", "url": "https://www.youtube.com/shorts/2kZuEZwDf4o" }
+            ]
+          }
+        ]
+      },
+  
+      {
+        "id": "muscle_activation_tips",
+        "label": "Muscle Activation Tips",
+        "type": "flat",
+        "videos": [
+          { "title": "Tips for better bicep activation", "url": "https://www.youtube.com/shorts/F5mSoK4Sfw4" },
+          { "title": "Tips for better chest activation", "url": "https://www.youtube.com/shorts/uIDLngZRVYE" },
+          { "title": "Tips for better back activation", "url": "https://www.youtube.com/shorts/ECv5dvy2X6Y" },
+          { "title": "Tips for better shoulder activation", "url": "https://www.youtube.com/shorts/70oRM5TgCGU" },
+          { "title": "Tips for better tricep activation", "url": "https://www.youtube.com/shorts/X14tJ6tnyNg" }
+        ]
+      },
+  
+      {
+        "id": "full_workouts_routines",
+        "label": "Full Workouts & Routines",
+        "type": "flat",
+        "videos": [
+          { "title": "Full chest workout", "url": "https://www.youtube.com/shorts/idt3ds2fTL4" },
+          { "title": "Trial and tested full back workout", "url": "https://www.youtube.com/shorts/9Xi5GPk60Ro" },
+          { "title": "Full leg workout – step by step", "url": "https://www.youtube.com/shorts/CSCMSn78Feo" },
+          { "title": "Best arms day routine", "url": "https://www.youtube.com/shorts/Pjr0vfdtMxM" }
+        ]
+      },
+  
+      {
+        "id": "exercise_comparisons",
+        "label": "Exercise Comparisons",
+        "type": "flat",
+        "videos": [
+          { "title": "Rod or dumbbell for bicep growth?", "url": "https://www.youtube.com/shorts/tcp5oHa2wzM" },
+          { "title": "Arnold press vs shoulder press", "url": "https://www.youtube.com/shorts/e_CHv78f-Lo" }
+        ]
+      },
+  
+      {
+        "id": "mistakes_injury_prevention",
+        "label": "Mistakes & Injury Prevention",
+        "type": "flat",
+        "videos": [
+          { "title": "Don’t train your shoulder like this", "url": "https://www.youtube.com/shorts/0OI5BNwFhoM" },
+          { "title": "Don’t do this mistake while crossover", "url": "https://www.youtube.com/shorts/6Y5SgeyutUY" },
+          { "title": "Don’t do this type of bicep curls", "url": "https://www.youtube.com/shorts/FrTZYOoqOkE" }
+        ]
+      },
+  
+      {
+        "id": "muscle_growth_physique",
+        "label": "Muscle Growth / Physique",
+        "type": "flat",
+        "videos": [
+          { "title": "V taper body unlocked", "url": "https://www.youtube.com/shorts/dKGJxkRTti0" },
+          { "title": "3 best exercises for shoulder growth", "url": "https://www.youtube.com/shorts/dJ0s95mDS8o" },
+          { "title": "Best exercise for lats", "url": "https://www.youtube.com/shorts/Id520SaieTM" }
+        ]
+      }
+    ]
+  }
+  

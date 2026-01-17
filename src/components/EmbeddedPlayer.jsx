@@ -1,10 +1,9 @@
 import { useEffect, useRef } from 'react';
-import RestTimer from './RestTimer';
 
 // Global default start offset in seconds
 const DEFAULT_START_OFFSET_SECONDS = 15;
 
-function EmbeddedPlayer({ video, onBack, onNext, onPrevious, showRestTimer = true, autoplay = false, onEnded }) {
+function EmbeddedPlayer({ video, onBack, onNext, onPrevious, autoplay = false, onEnded }) {
   // Extract video ID from various YouTube URL formats
   // Handles: watch URLs (?v=VIDEO_ID), Shorts URLs (/shorts/VIDEO_ID), embed URLs (/embed/VIDEO_ID)
   const extractVideoId = (url) => {
@@ -262,7 +261,7 @@ function EmbeddedPlayer({ video, onBack, onNext, onPrevious, showRestTimer = tru
           ← Back to videos
         </button>
         <h2 className="text-xl font-bold mb-4 px-2">{video.title}</h2>
-        <div className="w-full flex justify-center">
+        <div className="w-full flex flex-col items-center gap-6">
           <div className="relative w-full max-w-md mx-auto" style={{ aspectRatio: '9/16' }}>
             <iframe
               ref={iframeRef}
@@ -274,51 +273,50 @@ function EmbeddedPlayer({ video, onBack, onNext, onPrevious, showRestTimer = tru
               style={{ border: 'none' }}
             />
           </div>
+          {(onPrevious || onNext) && (
+            <div className="flex gap-3 justify-center w-full max-w-md">
+              {onPrevious && (
+                <button
+                  onClick={onPrevious}
+                  className="bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-bold py-4 px-6 rounded-2xl shadow-2xl border-2 border-blue-500 min-h-[48px] flex items-center gap-2 transition-colors focus:outline-none focus:ring-4 focus:ring-blue-400"
+                  aria-label="Previous Exercise"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-6 w-6"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth={3}
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M11 17l-5-5m0 0l5-5m-5 5h12" />
+                  </svg>
+                  <span className="text-lg">Previous Exercise</span>
+                </button>
+              )}
+              {onNext && (
+                <button
+                  onClick={onNext}
+                  className="bg-green-600 hover:bg-green-700 active:bg-green-800 text-white font-bold py-4 px-6 rounded-2xl shadow-2xl border-2 border-green-500 min-h-[48px] flex items-center gap-2 transition-colors focus:outline-none focus:ring-4 focus:ring-green-400"
+                  aria-label="Next Exercise"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-6 w-6"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth={3}
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                  </svg>
+                  <span className="text-lg">Next Exercise</span>
+                </button>
+              )}
+            </div>
+          )}
         </div>
       </div>
-      {showRestTimer && <RestTimer />}
-      {(onPrevious || onNext) && (
-        <div className="fixed bottom-6 left-4 z-50 flex gap-3">
-          {onPrevious && (
-            <button
-              onClick={onPrevious}
-              className="bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-bold py-4 px-6 rounded-2xl shadow-2xl border-2 border-blue-500 min-h-[48px] flex items-center gap-2 transition-colors focus:outline-none focus:ring-4 focus:ring-blue-400"
-              aria-label="Previous Exercise"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-6 w-6"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth={3}
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" d="M11 17l-5-5m0 0l5-5m-5 5h12" />
-              </svg>
-              <span className="text-lg">Previous Exercise</span>
-            </button>
-          )}
-          {onNext && (
-            <button
-              onClick={onNext}
-              className="bg-green-600 hover:bg-green-700 active:bg-green-800 text-white font-bold py-4 px-6 rounded-2xl shadow-2xl border-2 border-green-500 min-h-[48px] flex items-center gap-2 transition-colors focus:outline-none focus:ring-4 focus:ring-green-400"
-              aria-label="Next Exercise"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-6 w-6"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth={3}
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
-              </svg>
-              <span className="text-lg">Next Exercise</span>
-            </button>
-          )}
-        </div>
-      )}
     </div>
   );
 }

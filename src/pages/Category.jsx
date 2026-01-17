@@ -3,7 +3,6 @@ import { useParams } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 import VideoThumbnailCard from '../components/VideoThumbnailCard';
 import EmbeddedPlayer from '../components/EmbeddedPlayer';
-import RestTimer from '../components/RestTimer';
 import SubCategoryGrid from '../components/SubCategoryGrid';
 import workoutData from '../data/categorised_workout_v2.json';
 
@@ -292,7 +291,6 @@ function Category() {
           }}
           onNext={shouldShowNextButton ? handleNext : undefined}
           onPrevious={shouldShowPreviousButton ? handlePrevious : undefined}
-          showRestTimer={!isSupersetOrCircuit || isLastExercise}
         />
       </div>
     );

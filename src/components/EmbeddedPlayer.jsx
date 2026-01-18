@@ -1,4 +1,4 @@
-import { useEffect, useRef, useMemo } from 'react';
+import { useEffect, useRef, useMemo, useState, useCallback } from 'react';
 
 // Global default start offset in seconds
 const DEFAULT_START_OFFSET_SECONDS = 15;
@@ -79,6 +79,8 @@ function EmbeddedPlayer({ video, onBack, onNext, onPrevious, autoplay = false, o
   const endOffset = useMemo(() => resolveEndOffset(), [video.endOffset]);
   const mute = shouldMute();
   const iframeRef = useRef(null);
+  const [showControls, setShowControls] = useState(false);
+  const hideTimerRef = useRef(null);
   
   if (!videoId) {
     return (
@@ -425,6 +427,60 @@ function EmbeddedPlayer({ video, onBack, onNext, onPrevious, autoplay = false, o
     };
   }, [onEnded, videoId]);
 
+  // Auto-hide controls after 4 seconds
+  const resetHideTimer = useCallback(() => {
+    if (hideTimerRef.current) {
+      clearTimeout(hideTimerRef.current);
+    }
+    hideTimerRef.current = setTimeout(() => {
+      setShowControls(false);
+    }, 4000);
+  }, []);
+
+  // Show controls on tap and reset timer
+  const handleVideoTap = useCallback((e) => {
+    // Don't trigger if clicking on a button
+    if (e.target.closest('button')) {
+      return;
+    }
+    setShowControls(true);
+    resetHideTimer();
+  }, [resetHideTimer]);
+
+  // Reset timer when buttons are interacted with
+  const handleButtonInteraction = useCallback(() => {
+    setShowControls(true);
+    resetHideTimer();
+  }, [resetHideTimer]);
+
+  // Cleanup timer on unmount
+  useEffect(() => {
+    return () => {
+      if (hideTimerRef.current) {
+        clearTimeout(hideTimerRef.current);
+      }
+    };
+  }, []);
+
+  // Reset timer when controls visibility changes
+  useEffect(() => {
+    if (showControls) {
+      resetHideTimer();
+    } else {
+      if (hideTimerRef.current) {
+        clearTimeout(hideTimerRef.current);
+      }
+    }
+  }, [showControls, resetHideTimer]);
+
+  // Reset controls visibility when video changes
+  useEffect(() => {
+    setShowControls(false);
+    if (hideTimerRef.current) {
+      clearTimeout(hideTimerRef.current);
+    }
+  }, [videoId]);
+
   return (
     <div className="min-h-screen bg-gray-900 text-white">
       <div className="container mx-auto px-4 py-4 max-w-4xl">
@@ -437,14 +493,16 @@ function EmbeddedPlayer({ video, onBack, onNext, onPrevious, autoplay = false, o
         <h2 className="text-xl font-bold mb-4 px-2">{video.title}</h2>
         <div className="w-full flex flex-col items-center gap-6">
           <div 
-            className="relative w-full max-w-md mx-auto" 
+            className="relative w-full max-w-md mx-auto cursor-pointer" 
             style={{ aspectRatio: '9/16' }}
+            onClick={handleVideoTap}
+            onTouchStart={handleVideoTap}
           >
             <iframe
               ref={iframeRef}
               src={embedUrl}
               title={video.title}
-              className="w-full h-full rounded-lg"
+              className="w-full h-full rounded-lg pointer-events-auto"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
               style={{ border: 'none' }}
             />
@@ -454,8 +512,16 @@ function EmbeddedPlayer({ video, onBack, onNext, onPrevious, autoplay = false, o
                 {/* Left side - Previous button */}
                 {onPrevious && (
                   <button
-                    onClick={onPrevious}
-                    className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 active:bg-black/80 backdrop-blur-md text-white font-bold py-3 px-4 rounded-full shadow-xl border-2 border-white/40 min-h-[56px] min-w-[56px] flex items-center justify-center transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-white/50 z-10"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleButtonInteraction();
+                      onPrevious();
+                    }}
+                    onMouseEnter={handleButtonInteraction}
+                    onTouchStart={handleButtonInteraction}
+                    className={`absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 active:bg-black/80 backdrop-blur-md text-white font-bold py-3 px-4 rounded-full shadow-xl border-2 border-white/40 min-h-[56px] min-w-[56px] flex items-center justify-center transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-white/50 z-10 pointer-events-auto ${
+                      showControls ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none'
+                    }`}
                     aria-label="Previous Exercise"
                     style={{ 
                       WebkitTapHighlightColor: 'transparent',
@@ -477,8 +543,16 @@ function EmbeddedPlayer({ video, onBack, onNext, onPrevious, autoplay = false, o
                 {/* Right side - Next button */}
                 {onNext && (
                   <button
-                    onClick={onNext}
-                    className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 active:bg-black/80 backdrop-blur-md text-white font-bold py-3 px-4 rounded-full shadow-xl border-2 border-white/40 min-h-[56px] min-w-[56px] flex items-center justify-center transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-white/50 z-10"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleButtonInteraction();
+                      onNext();
+                    }}
+                    onMouseEnter={handleButtonInteraction}
+                    onTouchStart={handleButtonInteraction}
+                    className={`absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 active:bg-black/80 backdrop-blur-md text-white font-bold py-3 px-4 rounded-full shadow-xl border-2 border-white/40 min-h-[56px] min-w-[56px] flex items-center justify-center transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-white/50 z-10 pointer-events-auto ${
+                      showControls ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none'
+                    }`}
                     aria-label="Next Exercise"
                     style={{ 
                       WebkitTapHighlightColor: 'transparent',

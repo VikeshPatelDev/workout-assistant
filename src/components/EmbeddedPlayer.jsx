@@ -438,13 +438,23 @@ function EmbeddedPlayer({ video, onBack, onNext, onPrevious, autoplay = false, o
     }, 4000);
   }, []);
 
-  // Show controls when tapping on the sides (left or right edge areas)
-  const handleSideTap = useCallback((e) => {
+  // Handle side tap - only show buttons when hidden, don't navigate
+  const handleLeftSideTap = useCallback((e) => {
     // Don't trigger if clicking on a button
     if (e.target.closest('button')) {
       return;
     }
-    // Show controls and reset timer
+    // Just show buttons, don't navigate
+    setShowControls(true);
+    resetHideTimer();
+  }, [resetHideTimer]);
+
+  const handleRightSideTap = useCallback((e) => {
+    // Don't trigger if clicking on a button
+    if (e.target.closest('button')) {
+      return;
+    }
+    // Just show buttons, don't navigate
     setShowControls(true);
     resetHideTimer();
   }, [resetHideTimer]);
@@ -513,16 +523,17 @@ function EmbeddedPlayer({ video, onBack, onNext, onPrevious, autoplay = false, o
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
               style={{ border: 'none' }}
             />
-            {/* Tap zones on left and right edges to show buttons - doesn't block center video area */}
+            {/* Tap zones on left and right edges - doesn't block center video area */}
             {!showControls && (onPrevious || onNext) && (
               <>
-                {/* Left edge tap zone */}
+                {/* Left edge tap zone (25% width) */}
                 {onPrevious && (
                   <div
-                    className="absolute left-0 top-0 bottom-0 w-1/4 cursor-pointer"
-                    onClick={handleSideTap}
-                    onTouchStart={handleSideTap}
+                    className="absolute left-0 top-0 bottom-0 cursor-pointer"
+                    onClick={handleLeftSideTap}
+                    onTouchStart={handleLeftSideTap}
                     style={{ 
+                      width: '25%',
                       touchAction: 'manipulation',
                       WebkitTapHighlightColor: 'transparent',
                       zIndex: 10,
@@ -531,13 +542,14 @@ function EmbeddedPlayer({ video, onBack, onNext, onPrevious, autoplay = false, o
                     aria-hidden="true"
                   />
                 )}
-                {/* Right edge tap zone */}
+                {/* Right edge tap zone (25% width) */}
                 {onNext && (
                   <div
-                    className="absolute right-0 top-0 bottom-0 w-1/4 cursor-pointer"
-                    onClick={handleSideTap}
-                    onTouchStart={handleSideTap}
+                    className="absolute right-0 top-0 bottom-0 cursor-pointer"
+                    onClick={handleRightSideTap}
+                    onTouchStart={handleRightSideTap}
                     style={{ 
+                      width: '25%',
                       touchAction: 'manipulation',
                       WebkitTapHighlightColor: 'transparent',
                       zIndex: 10,

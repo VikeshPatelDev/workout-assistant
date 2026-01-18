@@ -1,7 +1,9 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useMemo } from 'react';
 
 // Global default start offset in seconds
 const DEFAULT_START_OFFSET_SECONDS = 15;
+// Global default end offset in seconds (stop this many seconds before end)
+const DEFAULT_END_OFFSET_SECONDS = 3;
 
 function EmbeddedPlayer({ video, onBack, onNext, onPrevious, autoplay = false, onEnded }) {
   // Extract video ID from various YouTube URL formats
@@ -56,13 +58,25 @@ function EmbeddedPlayer({ video, onBack, onNext, onPrevious, autoplay = false, o
     return DEFAULT_START_OFFSET_SECONDS;
   };
 
+  // Resolve end offset: use video.endOffset if present and valid, otherwise use default
+  const resolveEndOffset = () => {
+    if (video.endOffset !== undefined && video.endOffset !== null) {
+      const offset = Number(video.endOffset);
+      if (!isNaN(offset) && offset >= 0) {
+        return offset;
+      }
+    }
+    return DEFAULT_END_OFFSET_SECONDS;
+  };
+
   // Resolve mute setting: use video.mute if explicitly set to true, otherwise default to false (unmuted)
   const shouldMute = () => {
     return video.mute === true;
   };
 
   const videoId = extractVideoId(video.url);
-  const startOffset = resolveStartOffset();
+  const startOffset = useMemo(() => resolveStartOffset(), [video.startOffset]);
+  const endOffset = useMemo(() => resolveEndOffset(), [video.endOffset]);
   const mute = shouldMute();
   const iframeRef = useRef(null);
   
@@ -113,7 +127,167 @@ function EmbeddedPlayer({ video, onBack, onNext, onPrevious, autoplay = false, o
     return () => clearTimeout(timer);
   }, [autoplay, videoId]);
 
+  // Early stop logic (stop 5 seconds before end) - always runs regardless of onEnded
+  useEffect(() => {
+    let ended = false;
+    let videoDuration = null;
+    const iframe = iframeRef.current;
+
+    const handleMessage = (event) => {
+      // Check for YouTube origin
+      const isYouTubeOrigin = 
+        event.origin === "https://www.youtube.com" ||
+        event.origin === "https://www.youtube-nocookie.com" ||
+        event.origin.includes('youtube.com');
+      
+      if (!isYouTubeOrigin) return;
+
+      try {
+        let data;
+        if (typeof event.data === 'string') {
+          try {
+            data = JSON.parse(event.data);
+          } catch {
+            return;
+          }
+        } else {
+          data = event.data;
+        }
+
+        // Get video duration from infoDelivery (response to getDuration command)
+        if (data.event === "infoDelivery" && data.info) {
+          if (data.info.duration !== undefined && data.info.duration > 0) {
+            videoDuration = data.info.duration;
+          }
+          
+          // Get current time from infoDelivery (response to getCurrentTime command)
+          // and check if we should stop early
+          if (data.info.currentTime !== undefined && videoDuration !== null && !ended) {
+            const currentTime = data.info.currentTime;
+            const stopTime = videoDuration - endOffset;
+            
+            // Stop video 5 seconds (or configured endOffset) before the end
+            if (currentTime >= stopTime) {
+              ended = true;
+              // Stop the video
+              try {
+                iframe.contentWindow?.postMessage(
+                  JSON.stringify({
+                    event: "command",
+                    func: "pauseVideo",
+                    args: []
+                  }),
+                  "*"
+                );
+              } catch (e) {
+                // Ignore errors
+              }
+              // Trigger onEnded callback if provided
+              if (onEnded) {
+                onEnded();
+              }
+            }
+          }
+        }
+      } catch (e) {
+        // Ignore parsing errors
+      }
+    };
+
+    window.addEventListener("message", handleMessage);
+
+    // Register for YouTube events and set up polling
+    let pollInterval = null;
+    
+    const registerForEvents = () => {
+      if (!iframe?.contentWindow) return;
+      
+      // Send listening message - required to receive events
+      try {
+        iframe.contentWindow.postMessage(
+          JSON.stringify({
+            event: "listening",
+            id: window.location.href,
+            channel: "widget"
+          }),
+          "*"
+        );
+      } catch (e) {
+        // Ignore registration errors
+      }
+
+      // Start polling to get duration/currentTime for early stop
+      if (!pollInterval) {
+        pollInterval = setInterval(() => {
+          if (!iframe?.contentWindow || ended) {
+            if (pollInterval) {
+              clearInterval(pollInterval);
+              pollInterval = null;
+            }
+            return;
+          }
+
+          try {
+            // Request video duration if we don't have it yet
+            if (videoDuration === null) {
+              iframe.contentWindow.postMessage(
+                JSON.stringify({
+                  event: "command",
+                  func: "getDuration",
+                  args: []
+                }),
+                "*"
+              );
+            }
+            
+            // Request current time to check if we should stop early
+            // Only check if we have duration and video hasn't ended
+            if (videoDuration !== null && !ended) {
+              iframe.contentWindow.postMessage(
+                JSON.stringify({
+                  event: "command",
+                  func: "getCurrentTime",
+                  args: []
+                }),
+                "*"
+              );
+            }
+          } catch (e) {
+            // Ignore polling errors
+          }
+        }, 500); // Poll every 500ms for more accurate time checking and early stopping
+      }
+    };
+
+    // Wait for iframe to load
+    const handleIframeLoad = () => {
+      // Wait for YouTube API to initialize
+      setTimeout(registerForEvents, 1500);
+    };
+
+    if (iframe) {
+      iframe.addEventListener("load", handleIframeLoad);
+      // If already loaded, trigger after delay
+      setTimeout(() => {
+        if (iframe.contentWindow) {
+          handleIframeLoad();
+        }
+      }, 1500);
+    }
+
+    return () => {
+      window.removeEventListener("message", handleMessage);
+      if (iframe) {
+        iframe.removeEventListener("load", handleIframeLoad);
+      }
+      if (pollInterval) {
+        clearInterval(pollInterval);
+      }
+    };
+  }, [videoId, endOffset, onEnded]);
+
   // FIX 2: Bulletproof auto-advance with dual trigger (ENDED + time-based fallback)
+  // Only runs when onEnded is provided (for superset/circuit mode)
   useEffect(() => {
     if (!onEnded) return;
 
@@ -262,59 +436,70 @@ function EmbeddedPlayer({ video, onBack, onNext, onPrevious, autoplay = false, o
         </button>
         <h2 className="text-xl font-bold mb-4 px-2">{video.title}</h2>
         <div className="w-full flex flex-col items-center gap-6">
-          <div className="relative w-full max-w-md mx-auto" style={{ aspectRatio: '9/16' }}>
+          <div 
+            className="relative w-full max-w-md mx-auto" 
+            style={{ aspectRatio: '9/16' }}
+          >
             <iframe
               ref={iframeRef}
               src={embedUrl}
               title={video.title}
               className="w-full h-full rounded-lg"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
-              allowFullScreen
               style={{ border: 'none' }}
             />
+            {/* Overlay navigation buttons - positioned absolutely like native mobile apps */}
+            {(onPrevious || onNext) && (
+              <>
+                {/* Left side - Previous button */}
+                {onPrevious && (
+                  <button
+                    onClick={onPrevious}
+                    className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 active:bg-black/80 backdrop-blur-md text-white font-bold py-3 px-4 rounded-full shadow-xl border-2 border-white/40 min-h-[56px] min-w-[56px] flex items-center justify-center transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-white/50 z-10"
+                    aria-label="Previous Exercise"
+                    style={{ 
+                      WebkitTapHighlightColor: 'transparent',
+                      touchAction: 'manipulation'
+                    }}
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-7 w-7"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      strokeWidth={3}
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+                    </svg>
+                  </button>
+                )}
+                {/* Right side - Next button */}
+                {onNext && (
+                  <button
+                    onClick={onNext}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 active:bg-black/80 backdrop-blur-md text-white font-bold py-3 px-4 rounded-full shadow-xl border-2 border-white/40 min-h-[56px] min-w-[56px] flex items-center justify-center transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-white/50 z-10"
+                    aria-label="Next Exercise"
+                    style={{ 
+                      WebkitTapHighlightColor: 'transparent',
+                      touchAction: 'manipulation'
+                    }}
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-7 w-7"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      strokeWidth={3}
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                    </svg>
+                  </button>
+                )}
+              </>
+            )}
           </div>
-          {(onPrevious || onNext) && (
-            <div className="flex gap-3 justify-center w-full max-w-md">
-              {onPrevious && (
-                <button
-                  onClick={onPrevious}
-                  className="bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-bold py-4 px-6 rounded-2xl shadow-2xl border-2 border-blue-500 min-h-[48px] flex items-center gap-2 transition-colors focus:outline-none focus:ring-4 focus:ring-blue-400"
-                  aria-label="Previous Exercise"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-6 w-6"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    strokeWidth={3}
-                  >
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M11 17l-5-5m0 0l5-5m-5 5h12" />
-                  </svg>
-                  <span className="text-lg">Previous Exercise</span>
-                </button>
-              )}
-              {onNext && (
-                <button
-                  onClick={onNext}
-                  className="bg-green-600 hover:bg-green-700 active:bg-green-800 text-white font-bold py-4 px-6 rounded-2xl shadow-2xl border-2 border-green-500 min-h-[48px] flex items-center gap-2 transition-colors focus:outline-none focus:ring-4 focus:ring-green-400"
-                  aria-label="Next Exercise"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-6 w-6"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    strokeWidth={3}
-                  >
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                  </svg>
-                  <span className="text-lg">Next Exercise</span>
-                </button>
-              )}
-            </div>
-          )}
         </div>
       </div>
     </div>

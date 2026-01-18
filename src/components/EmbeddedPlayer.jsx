@@ -82,6 +82,7 @@ function EmbeddedPlayer({ video, onBack, onNext, onPrevious, autoplay = false, o
   const iframeRef = useRef(null);
   const [showControls, setShowControls] = useState(false);
   const hideTimerRef = useRef(null);
+  const touchHandledRef = useRef(false);
   
   if (!videoId) {
     return (
@@ -444,6 +445,11 @@ function EmbeddedPlayer({ video, onBack, onNext, onPrevious, autoplay = false, o
     if (e.target.closest('button')) {
       return;
     }
+    // Prevent default to avoid interfering with video
+    if (e.type === 'touchstart' || e.type === 'touchend') {
+      e.preventDefault();
+      e.stopPropagation();
+    }
     // Just show buttons, don't navigate
     setShowControls(true);
     resetHideTimer();
@@ -454,10 +460,38 @@ function EmbeddedPlayer({ video, onBack, onNext, onPrevious, autoplay = false, o
     if (e.target.closest('button')) {
       return;
     }
+    // Prevent default to avoid interfering with video
+    if (e.type === 'touchstart' || e.type === 'touchend') {
+      e.preventDefault();
+      e.stopPropagation();
+    }
     // Just show buttons, don't navigate
     setShowControls(true);
     resetHideTimer();
   }, [resetHideTimer]);
+
+  // Handle touch end separately to ensure mobile taps work
+  const handleLeftSideTouchEnd = useCallback((e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    touchHandledRef.current = true;
+    handleLeftSideTap(e);
+    // Reset after a short delay
+    setTimeout(() => {
+      touchHandledRef.current = false;
+    }, 300);
+  }, [handleLeftSideTap]);
+
+  const handleRightSideTouchEnd = useCallback((e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    touchHandledRef.current = true;
+    handleRightSideTap(e);
+    // Reset after a short delay
+    setTimeout(() => {
+      touchHandledRef.current = false;
+    }, 300);
+  }, [handleRightSideTap]);
 
   // Reset timer when buttons are interacted with
   const handleButtonInteraction = useCallback(() => {
@@ -530,8 +564,13 @@ function EmbeddedPlayer({ video, onBack, onNext, onPrevious, autoplay = false, o
                 {onPrevious && (
                   <div
                     className="absolute left-0 top-0 bottom-0 cursor-pointer"
-                    onClick={handleLeftSideTap}
-                    onTouchStart={handleLeftSideTap}
+                    onClick={(e) => {
+                      // Only handle click if touch wasn't already handled
+                      if (!touchHandledRef.current) {
+                        handleLeftSideTap(e);
+                      }
+                    }}
+                    onTouchEnd={handleLeftSideTouchEnd}
                     style={{ 
                       width: '25%',
                       touchAction: 'manipulation',
@@ -546,8 +585,13 @@ function EmbeddedPlayer({ video, onBack, onNext, onPrevious, autoplay = false, o
                 {onNext && (
                   <div
                     className="absolute right-0 top-0 bottom-0 cursor-pointer"
-                    onClick={handleRightSideTap}
-                    onTouchStart={handleRightSideTap}
+                    onClick={(e) => {
+                      // Only handle click if touch wasn't already handled
+                      if (!touchHandledRef.current) {
+                        handleRightSideTap(e);
+                      }
+                    }}
+                    onTouchEnd={handleRightSideTouchEnd}
                     style={{ 
                       width: '25%',
                       touchAction: 'manipulation',

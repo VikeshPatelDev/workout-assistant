@@ -1,4 +1,5 @@
 import { useEffect, useRef, useMemo, useState, useCallback } from 'react';
+import { APP_VERSION, BUILD_DATE } from '../version';
 
 // Global default start offset in seconds
 const DEFAULT_START_OFFSET_SECONDS = 15;
@@ -437,12 +438,13 @@ function EmbeddedPlayer({ video, onBack, onNext, onPrevious, autoplay = false, o
     }, 4000);
   }, []);
 
-  // Show controls on tap and reset timer
-  const handleVideoTap = useCallback((e) => {
+  // Show controls when tapping on the sides (left or right edge areas)
+  const handleSideTap = useCallback((e) => {
     // Don't trigger if clicking on a button
     if (e.target.closest('button')) {
       return;
     }
+    // Show controls and reset timer
     setShowControls(true);
     resetHideTimer();
   }, [resetHideTimer]);
@@ -481,31 +483,71 @@ function EmbeddedPlayer({ video, onBack, onNext, onPrevious, autoplay = false, o
     }
   }, [videoId]);
 
+
   return (
     <div className="min-h-screen bg-gray-900 text-white">
       <div className="container mx-auto px-4 py-4 max-w-4xl">
-        <button
-          onClick={onBack}
-          className="mb-4 text-blue-400 active:text-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded px-4 py-3 text-lg font-medium min-h-[44px] flex items-center"
-        >
-          ← Back to videos
-        </button>
+        <div className="flex items-center justify-between mb-4">
+          <button
+            onClick={onBack}
+            className="text-blue-400 active:text-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded px-4 py-3 text-lg font-medium min-h-[44px] flex items-center"
+          >
+            ← Back to videos
+          </button>
+          <div className="text-xs text-gray-500 flex flex-col items-end">
+            <span>v{APP_VERSION}</span>
+            <span className="text-gray-600">{BUILD_DATE}</span>
+          </div>
+        </div>
         <h2 className="text-xl font-bold mb-4 px-2">{video.title}</h2>
         <div className="w-full flex flex-col items-center gap-6">
           <div 
-            className="relative w-full max-w-md mx-auto cursor-pointer" 
+            className="relative w-full max-w-md mx-auto" 
             style={{ aspectRatio: '9/16' }}
-            onClick={handleVideoTap}
-            onTouchStart={handleVideoTap}
           >
             <iframe
               ref={iframeRef}
               src={embedUrl}
               title={video.title}
-              className="w-full h-full rounded-lg pointer-events-auto"
+              className="w-full h-full rounded-lg"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
               style={{ border: 'none' }}
             />
+            {/* Tap zones on left and right edges to show buttons - doesn't block center video area */}
+            {!showControls && (onPrevious || onNext) && (
+              <>
+                {/* Left edge tap zone */}
+                {onPrevious && (
+                  <div
+                    className="absolute left-0 top-0 bottom-0 w-1/4 cursor-pointer"
+                    onClick={handleSideTap}
+                    onTouchStart={handleSideTap}
+                    style={{ 
+                      touchAction: 'manipulation',
+                      WebkitTapHighlightColor: 'transparent',
+                      zIndex: 10,
+                      pointerEvents: 'auto'
+                    }}
+                    aria-hidden="true"
+                  />
+                )}
+                {/* Right edge tap zone */}
+                {onNext && (
+                  <div
+                    className="absolute right-0 top-0 bottom-0 w-1/4 cursor-pointer"
+                    onClick={handleSideTap}
+                    onTouchStart={handleSideTap}
+                    style={{ 
+                      touchAction: 'manipulation',
+                      WebkitTapHighlightColor: 'transparent',
+                      zIndex: 10,
+                      pointerEvents: 'auto'
+                    }}
+                    aria-hidden="true"
+                  />
+                )}
+              </>
+            )}
             {/* Overlay navigation buttons - positioned absolutely like native mobile apps */}
             {(onPrevious || onNext) && (
               <>
@@ -518,9 +560,12 @@ function EmbeddedPlayer({ video, onBack, onNext, onPrevious, autoplay = false, o
                       onPrevious();
                     }}
                     onMouseEnter={handleButtonInteraction}
-                    onTouchStart={handleButtonInteraction}
-                    className={`absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 active:bg-black/80 backdrop-blur-md text-white font-bold py-3 px-4 rounded-full shadow-xl border-2 border-white/40 min-h-[56px] min-w-[56px] flex items-center justify-center transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-white/50 z-10 pointer-events-auto ${
-                      showControls ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none'
+                    onTouchStart={(e) => {
+                      e.stopPropagation();
+                      handleButtonInteraction();
+                    }}
+                    className={`absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 active:bg-black/80 backdrop-blur-md text-white font-bold py-3 px-4 rounded-full shadow-xl border-2 border-white/40 min-h-[56px] min-w-[56px] flex items-center justify-center transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-white/50 z-20 ${
+                      showControls ? 'opacity-100 scale-100 pointer-events-auto' : 'opacity-0 scale-95 pointer-events-none'
                     }`}
                     aria-label="Previous Exercise"
                     style={{ 
@@ -549,9 +594,12 @@ function EmbeddedPlayer({ video, onBack, onNext, onPrevious, autoplay = false, o
                       onNext();
                     }}
                     onMouseEnter={handleButtonInteraction}
-                    onTouchStart={handleButtonInteraction}
-                    className={`absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 active:bg-black/80 backdrop-blur-md text-white font-bold py-3 px-4 rounded-full shadow-xl border-2 border-white/40 min-h-[56px] min-w-[56px] flex items-center justify-center transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-white/50 z-10 pointer-events-auto ${
-                      showControls ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none'
+                    onTouchStart={(e) => {
+                      e.stopPropagation();
+                      handleButtonInteraction();
+                    }}
+                    className={`absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 active:bg-black/80 backdrop-blur-md text-white font-bold py-3 px-4 rounded-full shadow-xl border-2 border-white/40 min-h-[56px] min-w-[56px] flex items-center justify-center transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-white/50 z-20 ${
+                      showControls ? 'opacity-100 scale-100 pointer-events-auto' : 'opacity-0 scale-95 pointer-events-none'
                     }`}
                     aria-label="Next Exercise"
                     style={{ 
